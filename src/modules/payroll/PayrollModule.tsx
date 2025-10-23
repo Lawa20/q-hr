@@ -51,32 +51,22 @@ export default function PayrollModule() {
  search: ''
  });
 
- // Check if user has access to payroll
- if (!user || !hasPermission('view_payroll')) {
- return (
- <div className="p-6">
- <div className="text-center py-12">
- <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
- <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
- <p className="text-gray-500">
- You don't have permission to access payroll information.
- </p>
- </div>
- </div>
- );
- }
-
  // Load mock data on component mount
  useEffect(() => {
- const mockData = generateMockPayrollData();
- setPayrollRecords(mockData);
- setFilteredRecords(mockData);
- setSummary(getPayrollSummary(mockData));
- }, []);
+  // Only load if user has permission
+  if (user && hasPermission('view_payroll')) {
+    const mockData = generateMockPayrollData();
+    setPayrollRecords(mockData);
+    setFilteredRecords(mockData);
+    setSummary(getPayrollSummary(mockData));
+  }
+}, [user, hasPermission]);
 
  // Apply filters whenever filters change
  useEffect(() => {
- let filtered = payrollRecords;
+  if (!payrollRecords.length) return;
+  
+  let filtered = payrollRecords;
 
  // Apply search filter
  if (filters.search) {
@@ -143,6 +133,21 @@ export default function PayrollModule() {
  maximumFractionDigits: 0
  }).format(amount);
  };
+
+ // Check if user has access to payroll
+ if (!user || !hasPermission('view_payroll')) {
+ return (
+ <div className="p-6">
+ <div className="text-center py-12">
+ <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
+ <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+ <p className="text-gray-500">
+ You don't have permission to access payroll information.
+ </p>
+ </div>
+ </div>
+ );
+ }
 
  return (
  <div className="p-6 space-y-6">

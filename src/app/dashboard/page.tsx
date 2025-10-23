@@ -12,7 +12,7 @@ import {
   ExclamationTriangleIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
-import { mockUsers, mockAttendances, mockPayrolls, mockNotifications } from '@/lib/mockData';
+import { mockEmployees, mockAttendanceRecords, mockPayrollRecords, mockNotifications } from '@/lib/mockData';
 import { DashboardStats, AttendanceChartData, PayrollChartData } from '@/types';
 
 export default function DashboardPage() {
@@ -38,7 +38,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // Calculate dashboard stats
     const today = new Date();
-    const todayAttendances = mockAttendances.filter(att => 
+    const todayAttendances = mockAttendanceRecords.filter(att => 
       att.date.toDateString() === today.toDateString()
     );
     
@@ -46,11 +46,11 @@ export default function DashboardPage() {
     const lateToday = todayAttendances.filter(att => att.status === 'LATE').length;
     const absentToday = todayAttendances.filter(att => att.status === 'ABSENT').length;
     
-    const totalHours = mockAttendances.reduce((sum, att) => sum + (att.totalHours || 0), 0);
-    const averageHours = totalHours / Math.max(mockAttendances.length, 1);
+    const totalHours = mockAttendanceRecords.reduce((sum, att) => sum + (att.totalHours || 0), 0);
+    const averageHours = totalHours / Math.max(mockAttendanceRecords.length, 1);
 
     setStats({
-      totalEmployees: mockUsers.length,
+      totalEmployees: mockEmployees.length,
       presentToday,
       lateToday,
       absentToday,
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Payroll Summary</h3>
             <div className="space-y-4">
-              {mockPayrolls.slice(0, 2).map((payroll) => (
+              {mockPayrollRecords.slice(0, 2).map((payroll) => (
                 <div key={payroll.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">

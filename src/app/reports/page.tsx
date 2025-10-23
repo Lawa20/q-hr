@@ -11,7 +11,7 @@ import {
  CurrencyDollarIcon,
  ClockIcon
 } from '@heroicons/react/24/outline';
-import { mockAttendances, mockPayrolls, mockUsers } from '@/lib/mockData';
+import { mockEmployees, mockAttendanceRecords, mockPayrollRecords } from '@/lib/mockData';
 
 export default function ReportsPage() {
  const { user, isLoading } = useAuth();
@@ -79,11 +79,11 @@ export default function ReportsPage() {
  };
 
  const generateAttendanceReport = () => {
- const totalDays = mockAttendances.length;
- const presentDays = mockAttendances.filter(att => att.status === 'PRESENT').length;
- const lateDays = mockAttendances.filter(att => att.status === 'LATE').length;
- const absentDays = mockAttendances.filter(att => att.status === 'ABSENT').length;
- const totalHours = mockAttendances.reduce((sum, att) => sum + (att.totalHours || 0), 0);
+ const totalDays = mockAttendanceRecords.length;
+ const presentDays = mockAttendanceRecords.filter(att => att.status === 'PRESENT').length;
+ const lateDays = mockAttendanceRecords.filter(att => att.status === 'LATE').length;
+ const absentDays = mockAttendanceRecords.filter(att => att.status === 'ABSENT').length;
+ const totalHours = mockAttendanceRecords.reduce((sum, att) => sum + (att.totalHours || 0), 0);
  const averageHours = totalHours / Math.max(totalDays, 1);
 
  return {
@@ -98,11 +98,11 @@ export default function ReportsPage() {
  };
 
  const generatePayrollReport = () => {
- const totalPayroll = mockPayrolls.reduce((sum, payroll) => sum + payroll.netSalary, 0);
- const averageSalary = totalPayroll / Math.max(mockPayrolls.length, 1);
- const totalOvertime = mockPayrolls.reduce((sum, payroll) => sum + payroll.overtimePay, 0);
- const totalBonuses = mockPayrolls.reduce((sum, payroll) => sum + payroll.bonuses, 0);
- const totalDeductions = mockPayrolls.reduce((sum, payroll) => sum + payroll.deductions, 0);
+ const totalPayroll = mockPayrollRecords.reduce((sum, payroll) => sum + payroll.netSalary, 0);
+ const averageSalary = totalPayroll / Math.max(mockPayrollRecords.length, 1);
+ const totalOvertime = mockPayrollRecords.reduce((sum, payroll) => sum + payroll.overtimePay, 0);
+ const totalBonuses = mockPayrollRecords.reduce((sum, payroll) => sum + payroll.bonuses, 0);
+ const totalDeductions = mockPayrollRecords.reduce((sum, payroll) => sum + payroll.deductions, 0);
 
  return {
  totalPayroll,
@@ -110,15 +110,15 @@ export default function ReportsPage() {
  totalOvertime,
  totalBonuses,
  totalDeductions,
- recordCount: mockPayrolls.length
+ recordCount: mockPayrollRecords.length
  };
  };
 
  const generateEmployeeReport = () => {
- const totalEmployees = mockUsers.length;
- const activeEmployees = mockUsers.filter(u => u.isActive).length;
- const departments = Array.from(new Set(mockUsers.map(u => u.department).filter(Boolean)));
- const averageSalary = mockUsers.reduce((sum, u) => sum + (u.salary || 0), 0) / Math.max(totalEmployees, 1);
+ const totalEmployees = mockEmployees.length;
+ const activeEmployees = mockEmployees.filter(u => u.isActive).length;
+ const departments = Array.from(new Set(mockEmployees.map(u => u.department).filter(Boolean)));
+ const averageSalary = mockEmployees.reduce((sum, u) => sum + (u.salary || 0), 0) / Math.max(totalEmployees, 1);
 
  return {
  totalEmployees,
