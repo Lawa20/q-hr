@@ -1,0 +1,16 @@
+{
+  "name": "Q HR Management System",
+  "short_name": "Q HR",
+  "description": "Modern HR Management System with Face Recognition",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 10px; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .blue { background-color: #3b82f6; color: white; }
+        .red { background-color: #dc2626; color: white; }
+        .purple { background-color: #7c3aed; color: white; }
+        .debug { background-color: #fef3c7; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Button Test Page</h1>
+    <p>This page tests if JavaScript event handlers are working properly.</p>
+    
+    <div>
+        <button class="blue" onclick="testButton('Request Leave')">Request Leave</button>
+        <button class="red" onclick="testButton('Test')">Test</button>
+        <button class="purple" onclick="testButton('DOM Test')">DOM Test</button>
+    </div>
+    
+    <div class="debug">
+        <h3>Debug Info:</h3>
+        <p id="debug-info">No button clicks yet</p>
+        <p id="click-count">Click count: 0</p>
+    </div>
+    
+    <script>
+        let clickCount = 0;
+        
+        function testButton(buttonName) {
+            clickCount++;
+            console.log(`${buttonName} button clicked!`);
+            console.log(`Total clicks: ${clickCount}`);
+            
+            document.getElementById('debug-info').textContent = `Last clicked: ${buttonName}`;
+            document.getElementById('click-count').textContent = `Click count: ${clickCount}`;
+            
+            // Show alert to confirm click
+            alert(`${buttonName} button clicked! Total clicks: ${clickCount}`);
+        }
+        
+        // Test if JavaScript is working
+        console.log('JavaScript is working!');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded successfully');
+        });
+    </script>
+</body>
+</html>

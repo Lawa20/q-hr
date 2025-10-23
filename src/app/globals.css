@@ -1,15 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +18,341 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect for specific content cards only */
+.hover-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Optimize animations for better performance */
+* {
+  will-change: auto;
+}
+
+/* Force visible input text - ensure high contrast */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="password"],
+select,
+textarea {
+  background-color: white !important;
+  color: #111827 !important; /* gray-900 */
+  -webkit-text-fill-color: #111827 !important;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="number"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 */
+  opacity: 1 !important;
+}
+
+/* Ensure select dropdowns are visible */
+select option {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Date input specific fixes */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #111827 !important;
+}
+
+/* Ensure header dropdowns appear above all content */
+header {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Dark mode styles */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Dark mode input styles */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="tel"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="password"],
+.dark select,
+.dark textarea {
+  background-color: #374151 !important; /* gray-700 */
+  color: #f9fafb !important; /* gray-50 */
+  border-color: #4b5563 !important; /* gray-600 */
+}
+
+.dark input[type="text"]::placeholder,
+.dark input[type="email"]::placeholder,
+.dark input[type="tel"]::placeholder,
+.dark input[type="number"]::placeholder,
+.dark input[type="password"]::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+.dark select option {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Enhanced hover effects for specific content cards */
+.hover-scale:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effect for employee cards and department cards */
+.employee-card, .department-card, .team-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.employee-card:hover, .department-card:hover, .team-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Ensure dropdowns in header have highest z-index */
+header .relative {
+  z-index: 1001;
+}
+
+/* Ensure role switcher dropdown appears above all content */
+.relative {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Specific z-index for role switcher */
+[data-role-switcher] {
+  z-index: 99999 !important;
+  position: relative !important;
+}
+
+/* Ensure role switcher dropdown appears above everything */
+[data-role-switcher] .absolute {
+  z-index: 999999 !important;
+  position: absolute !important;
+}
+
+/* Override any parent container restrictions */
+[data-role-switcher] * {
+  z-index: inherit !important;
+}
+
+/* Ensure parent containers don't clip the dropdown */
+[data-role-switcher] {
+  overflow: visible !important;
+}
+
+/* Ensure motion containers don't clip dropdowns */
+.motion-safe {
+  overflow: visible !important;
+}
+
+/* Specific fix for role switcher parent containers */
+.bg-white.rounded-xl.shadow-lg {
+  overflow: visible !important;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimize Framer Motion animations */
+[data-framer-motion] {
+  will-change: transform, opacity;
+}
+
+/* Hardware acceleration for smooth animations */
+.motion-safe {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize animations for better performance */
+* {
+  transform-style: preserve-3d;
+}
+
+/* Prevent layout shifts during animations */
+.motion-container {
+  contain: layout style paint;
+}
+
+/* Smooth scrolling optimization */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize transitions */
+.transition-optimized {
+  transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* RTL Support */
+.rtl {
+  direction: rtl;
+}
+
+.rtl .flex {
+  flex-direction: row-reverse;
+}
+
+.rtl .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.rtl .space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.rtl .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.rtl .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.rtl .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+.rtl .pl-3 {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+
+.rtl .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+/* RTL-specific animations */
+.rtl [data-framer-motion] {
+  transform-origin: right center;
+}
+
+/* Sidebar optimization */
+.sidebar-container {
+  contain: layout style paint;
+  will-change: width;
+}
+
+/* Prevent layout shifts during sidebar animation */
+.sidebar-nav {
+  contain: layout;
+}
+
+/* Smooth sidebar transitions */
+.sidebar-toggle {
+  transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Optimize sidebar content animations */
+.sidebar-content {
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }

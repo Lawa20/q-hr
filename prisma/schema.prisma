@@ -1,0 +1,260 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(EMPLOYEE)
+  avatar    String?
+  phone     String?
+  address   String?
+  position  String?
+  departmentId String?
+  salary    Float?
+  hireDate  DateTime?
+  isActive  Boolean  @default(true)
+  supervisorId String?
+  managerId String?
+  bloodType String?  // Blood type field
+  profilePhoto String?  // URL to profile photo
+  personalFiles String?  // JSON array of personal file URLs
+  emergencyContactName String?
+  emergencyContactPhone String?
+  emergencyContactRelationship String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  attendances    Attendance[]
+  payrolls       Payroll[]
+  notifications  Notification[]
+  faceData       FaceData?
+  checkIns       CheckIn[]
+  checkOuts      CheckOut[]
+  department     Department? @relation(fields: [departmentId], references: [id])
+  supervisor     User? @relation("SupervisorRelation", fields: [supervisorId], references: [id])
+  subordinates   User[] @relation("SupervisorRelation")
+  manager        User? @relation("ManagerRelation", fields: [managerId], references: [id])
+  supervisedBy   User[] @relation("ManagerRelation")
+
+  @@map("users")
+}
+
+model Attendance {
+  id          String        @id @default(cuid())
+  userId      String
+  date        DateTime
+  checkInTime DateTime?
+  checkOutTime DateTime?
+  status      AttendanceStatus @default(PRESENT)
+  totalHours  Float?
+  overtimeHours Float?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIns    CheckIn[]
+  checkOuts   CheckOut[]
+
+  @@unique([userId, date])
+  @@map("attendances")
+}
+
+model CheckIn {
+  id           String   @id @default(cuid())
+  userId       String
+  attendanceId String
+  timestamp    DateTime @default(now())
+  location     Json?    // GPS coordinates and address
+  faceVerified Boolean  @default(false)
+  deviceInfo   String?  // Device fingerprint
+  ipAddress    String?
+  notes        String?
+
+  // Relations
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendance  Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  @@map("check_ins")
+}
+
+model CheckOut {
+  id           String   @id @default(cuid())
+  userId       String
+  attendanceId String
+  timestamp    DateTime @default(now())
+  location     Json?    // GPS coordinates and address
+  faceVerified Boolean  @default(false)
+  deviceInfo   String?  // Device fingerprint
+  ipAddress    String?
+  notes        String?
+
+  // Relations
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendance  Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  @@map("check_outs")
+}
+
+model FaceData {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  faceId    String   @unique
+  faceData  Json     // Encrypted face recognition data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("face_data")
+}
+
+model Payroll {
+  id            String      @id @default(cuid())
+  userId        String
+  month         Int
+  year          Int
+  baseSalary    Float
+  overtimePay   Float        @default(0)
+  bonuses       Float        @default(0)
+  deductions    Float        @default(0)
+  netSalary     Float
+  status        PayrollStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month, year])
+  @@map("payrolls")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+
+  @@map("departments")
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  logo        String?
+  settings    Json?    // Company-specific settings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("companies")
+}
+
+model Employee {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String?
+  address   String?
+  position  String?
+  department String?
+  salary    Float?
+  hireDate  DateTime?
+  bloodType String?
+  isActive  Boolean  @default(true)
+  
+  // Emergency Contact Info
+  emergencyContactName String?
+  emergencyContactPhone String?
+  emergencyContactRelationship String?
+  
+  // Files
+  profilePhoto String?
+  personalFiles String?  // JSON array of file URLs
+  
+  // Relationships
+  supervisorId String?
+  managerId String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("employees")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  HR_MANAGER
+  MANAGER
+  SUPERVISOR
+  EMPLOYEE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  SICK_LEAVE
+  VACATION
+  HOLIDAY
+}
+
+enum PayrollStatus {
+  PENDING
+  PROCESSED
+  PAID
+  CANCELLED
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
+  ATTENDANCE
+  PAYROLL
+  SYSTEM
+}

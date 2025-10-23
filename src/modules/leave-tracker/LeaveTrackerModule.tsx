@@ -1,0 +1,372 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  PlusIcon, 
+  CalendarDaysIcon, 
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ExclamationTriangleIcon,
+  UserGroupIcon,
+  ChartBarIcon
+} from '@heroicons/react/24/outline';
+import { 
+  mockLeaveRequests, 
+  mockLeaveBalances, 
+  getLeaveBalanceByEmployeeId,
+  getPendingLeaveRequests,
+  getApprovedLeaveRequests,
+  getRejectedLeaveRequests,
+  LeaveRequest,
+  LeaveBalanceData
+} from '@/lib/mockLeaveData';
+import LeaveRequestForm from '@/components/leave/LeaveRequestForm';
+import LeaveRequestCard from '@/components/leave/LeaveRequestCard';
+import LeaveBalanceComponent from '@/components/leave/LeaveBalance';
+import LeaveFilters from '@/components/leave/LeaveFilters';
+
+interface Filters {
+  status: string;
+  leaveType: string;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  search: string;
+}
+
+export default function LeaveTrackerModule() {
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requests, setRequests] = useState<LeaveRequest[]>(mockLeaveRequests);
+  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>(mockLeaveRequests);
+  const [filters, setFilters] = useState<Filters>({
+    status: 'all',
+    leaveType: 'all',
+    dateRange: { start: '', end: '' },
+    search: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isApproving, setIsApproving] = useState<string | null>(null);
+  const [isRejecting, setIsRejecting] = useState<string | null>(null);
+  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+
+  // Mock current user's leave balance
+  const currentUserBalance = getLeaveBalanceByEmployeeId('emp-001') || mockLeaveBalances[0];
+
+  // Filter requests based on current filters
+  useEffect(() => {
+    let filtered = [...requests];
+
+    // Status filter
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(request => request.status === filters.status);
+    }
+
+    // Leave type filter
+    if (filters.leaveType !== 'all') {
+      filtered = filtered.filter(request => request.leaveType === filters.leaveType);
+    }
+
+    // Date range filter
+    if (filters.dateRange.start) {
+      filtered = filtered.filter(request => 
+        new Date(request.startDate) >= new Date(filters.dateRange.start)
+      );
+    }
+    if (filters.dateRange.end) {
+      filtered = filtered.filter(request => 
+        new Date(request.endDate) <= new Date(filters.dateRange.end)
+      );
+    }
+
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(request => 
+        request.employeeName.toLowerCase().includes(searchLower) ||
+        request.reason.toLowerCase().includes(searchLower) ||
+        request.leaveType.toLowerCase().includes(searchLower)
+      );
+    }
+
+    setFilteredRequests(filtered);
+  }, [requests, filters]);
+
+  // Tab-based filtering
+  const getTabRequests = () => {
+    switch (selectedTab) {
+      case 'pending':
+        return filteredRequests.filter(req => req.status === 'Pending');
+      case 'approved':
+        return filteredRequests.filter(req => req.status === 'Approved');
+      case 'rejected':
+        return filteredRequests.filter(req => req.status === 'Rejected');
+      default:
+        return filteredRequests;
+    }
+  };
+
+  const handleSubmitRequest = async (requestData: Omit<LeaveRequest, 'id' | 'submittedDate' | 'status'>) => {
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newRequest: LeaveRequest = {
+      ...requestData,
+      id: `req-${Date.now()}`,
+      submittedDate: new Date().toISOString(),
+      status: 'Pending'
+    };
+    
+    setRequests(prev => [newRequest, ...prev]);
+    setShowRequestForm(false);
+    setIsSubmitting(false);
+  };
+
+  const handleApproveRequest = async (requestId: string) => {
+    setIsApproving(requestId);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setRequests(prev => prev.map(req => 
+      req.id === requestId 
+        ? { 
+            ...req, 
+            status: 'Approved' as const,
+            reviewedBy: 'Current Supervisor',
+            reviewedDate: new Date().toISOString(),
+            comments: 'Approved by supervisor'
+          }
+        : req
+    ));
+    
+    setIsApproving(null);
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    setIsRejecting(requestId);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setRequests(prev => prev.map(req => 
+      req.id === requestId 
+        ? { 
+            ...req, 
+            status: 'Rejected' as const,
+            reviewedBy: 'Current Supervisor',
+            reviewedDate: new Date().toISOString(),
+            comments: 'Rejected due to business requirements'
+          }
+        : req
+    ));
+    
+    setIsRejecting(null);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      status: 'all',
+      leaveType: 'all',
+      dateRange: { start: '', end: '' },
+      search: ''
+    });
+  };
+
+  const getStats = () => {
+    const pending = requests.filter(req => req.status === 'Pending').length;
+    const approved = requests.filter(req => req.status === 'Approved').length;
+    const rejected = requests.filter(req => req.status === 'Rejected').length;
+    const total = requests.length;
+
+    return { pending, approved, rejected, total };
+  };
+
+  const stats = getStats();
+  const tabRequests = getTabRequests();
+
+  return (
+    <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Leave Tracker</h1>
+            <p className="text-gray-600 mt-2">Manage leave requests and track your time off</p>
+          </div>
+          <div className="flex space-x-3">
+            <button
+              type="button"
+              onClick={() => {
+                console.log('Request Leave button clicked');
+                setShowRequestForm(true);
+              }}
+              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Request Leave
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <CalendarDaysIcon className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-sm text-gray-500">Total Requests</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <ExclamationTriangleIcon className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                <p className="text-sm text-gray-500">Pending</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <CheckCircleIcon className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+                <p className="text-sm text-gray-500">Approved</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-red-100 rounded-lg">
+                <XCircleIcon className="h-6 w-6 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
+                <p className="text-sm text-gray-500">Rejected</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Leave Balance */}
+        <div className="mb-8">
+          <LeaveBalanceComponent balance={currentUserBalance} />
+        </div>
+
+        {/* Filters */}
+        <LeaveFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          onClearFilters={handleClearFilters}
+          totalResults={tabRequests.length}
+        />
+
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              {[
+                { key: 'all', label: 'All Requests', count: filteredRequests.length },
+                { key: 'pending', label: 'Pending', count: filteredRequests.filter(r => r.status === 'Pending').length },
+                { key: 'approved', label: 'Approved', count: filteredRequests.filter(r => r.status === 'Approved').length },
+                { key: 'rejected', label: 'Rejected', count: filteredRequests.filter(r => r.status === 'Rejected').length }
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSelectedTab(tab.key as any)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    selectedTab === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                  <span className={`ml-2 py-1 px-2 rounded-full text-xs ${
+                    selectedTab === tab.key
+                      ? 'bg-blue-100 text-blue-600'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Requests List */}
+        <div className="space-y-6">
+          {tabRequests.length === 0 ? (
+            <div className="text-center py-12">
+              <CalendarDaysIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No leave requests found</h3>
+              <p className="text-gray-500">
+                {selectedTab === 'all' 
+                  ? 'No requests match your current filters.' 
+                  : `No ${selectedTab} requests found.`
+                }
+              </p>
+            </div>
+          ) : (
+            tabRequests.map((request, index) => (
+              <div key={request.id}>
+                <LeaveRequestCard
+                  request={request}
+                  onApprove={handleApproveRequest}
+                  onReject={handleRejectRequest}
+                  showActions={true}
+                  isApproving={isApproving === request.id}
+                  isRejecting={isRejecting === request.id}
+                />
+              </div>
+            ))
+          )}
+        </div>
+
+
+        {/* Request Form Modal */}
+        {showRequestForm && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50 overflow-y-auto"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                console.log('Modal backdrop clicked');
+                setShowRequestForm(false);
+              }
+            }}
+            style={{ 
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 9999,
+              paddingTop: '2rem',
+              paddingBottom: '2rem'
+            }}
+          >
+            <div className="w-full max-w-2xl my-8">
+              <LeaveRequestForm
+                onSubmit={handleSubmitRequest}
+                onCancel={() => setShowRequestForm(false)}
+                leaveBalance={currentUserBalance}
+                isSubmitting={isSubmitting}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
