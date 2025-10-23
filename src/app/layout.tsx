@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import AppLayout from "@/components/layout/AppLayout";
+import AppLayout from "@/components/Layout/AppLayout";
 import RTLWrapper from "@/components/common/RTLWrapper";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { ThemeProvider } from "@/contexts/ThemeContext";
